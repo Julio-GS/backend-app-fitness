@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { APP_GUARD } from '@nestjs/core';
 import { getDatabaseConfig } from './config/database.config';
-// import { getSupabaseClient } from './config/supabase.config'; // Si querés inyectar el cliente global después
+import { SupabaseAuthGuard } from './shared/guards/supabase-auth.guard';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -13,9 +16,15 @@ import { AppService } from './app.service';
       inject: [ConfigService],
       useFactory: getDatabaseConfig,
     }),
-    // Acá después agregás los módulos feature (auth, users, etc.)
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: SupabaseAuthGuard,
+    },
+  ],
 })
 export class AppModule {}
