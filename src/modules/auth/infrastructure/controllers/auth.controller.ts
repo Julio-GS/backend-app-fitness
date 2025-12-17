@@ -195,7 +195,7 @@ export class AuthController {
     },
   })
   @ApiResponse({ status: 401, description: 'Token inválido o expirado' })
-  async verify(@CurrentUser() supabaseUser: SupabaseUser | null) {
+  verify(@CurrentUser() supabaseUser: SupabaseUser | null) {
     if (!supabaseUser) {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }

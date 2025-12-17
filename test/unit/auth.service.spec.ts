@@ -36,6 +36,7 @@ describe('AuthService', () => {
     repo.register.mockResolvedValue({ user, session });
     const result = await service.execute(new RegisterCommand('a', 'b', 'c'));
     expect(result.user).toBeDefined();
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(repo.register).toHaveBeenCalledWith('a', 'b', 'c');
   });
 
@@ -55,6 +56,7 @@ describe('AuthService', () => {
     repo.login.mockResolvedValue({ user, session });
     const result = await service.execute(new LoginCommand('a', 'b'));
     expect(result.user).toBeDefined();
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(repo.login).toHaveBeenCalledWith('a', 'b');
   });
 });
