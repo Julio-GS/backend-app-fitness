@@ -1,7 +1,9 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 
-export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOptions => {
+export const getDatabaseConfig = (
+  configService: ConfigService,
+): TypeOrmModuleOptions => {
   // Prioriza DATABASE_URL, si no existe, construye la URL manualmente
   let databaseUrl = configService.get<string>('DATABASE_URL');
 
@@ -14,7 +16,9 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
     if (host && port && username && password && dbName) {
       databaseUrl = `postgres://${username}:${password}@${host}:${port}/${dbName}`;
     } else {
-      throw new Error('No se encontró DATABASE_URL ni todas las variables separadas para la conexión a la base de datos.');
+      throw new Error(
+        'No se encontró DATABASE_URL ni todas las variables separadas para la conexión a la base de datos.',
+      );
     }
   }
 
