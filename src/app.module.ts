@@ -8,6 +8,8 @@ import { SupabaseAuthGuard } from './shared/guards/supabase-auth.guard';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
+import { ExercisesModule } from './modules/exercises/exercises.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { AuthModule } from './modules/auth/auth.module';
       useFactory: getDatabaseConfig,
     }),
     AuthModule,
+    UsersModule,
+    ExercisesModule,
   ],
   controllers: [AppController],
   providers: [

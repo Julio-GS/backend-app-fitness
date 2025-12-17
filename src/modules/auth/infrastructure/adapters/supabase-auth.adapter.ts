@@ -3,13 +3,17 @@ import { AuthRepositoryPort } from '../../application/ports/out/auth.repository.
 import { User, UserSession } from '../../domain/entities/user.entity';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { ConfigService } from '@nestjs/config';
+import { UserProfileRepositoryPort } from '../../../users/application/ports/out/user-profile.repository.port';
 
 @Injectable()
 export class SupabaseAuthAdapter implements AuthRepositoryPort {
   private readonly logger = new Logger(SupabaseAuthAdapter.name);
   private supabase: SupabaseClient;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly userProfileRepository: UserProfileRepositoryPort,
+  ) {
     const url = this.configService.get<string>('SUPABASE_URL') ?? '';
     const key = this.configService.get<string>('SUPABASE_ANON_KEY') ?? '';
     this.supabase = createClient(url, key) as SupabaseClient;
@@ -62,6 +66,27 @@ export class SupabaseAuthAdapter implements AuthRepositoryPort {
       userId: data.user.id,
       email,
     });
+
+    // Crear perfil automáticamente en public.user_profiles
+    try {
+      await this.userProfileRepository.create({
+        id: data.user.id,
+        name: name || data.user.email?.split('@')[0] || 'Usuario',
+      });
+      this.logger.log({
+        message: 'User profile created successfully',
+        userId: data.user.id,
+      });
+    } catch (error) {
+      this.logger.error({
+        message: 'Failed to create user profile',
+        userId: data.user.id,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+      // No lanzamos error aquí para no bloquear el registro
+      // El usuario puede crear su perfil manualmente después
+    }
+
     return {
       user: new User(
         data.user.id,

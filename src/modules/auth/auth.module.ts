@@ -4,9 +4,10 @@ import { SupabaseAuthAdapter } from './infrastructure/adapters/supabase-auth.ada
 import { AuthController } from './infrastructure/controllers/auth.controller';
 import { ConfigModule } from '@nestjs/config';
 import { AuthRepositoryPort } from './application/ports/out/auth.repository.port';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, UsersModule],
   controllers: [AuthController],
   providers: [
     AuthService,
