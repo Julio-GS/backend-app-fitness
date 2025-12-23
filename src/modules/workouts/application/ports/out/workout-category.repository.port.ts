@@ -1,4 +1,4 @@
-import { WorkoutCategory } from '../../domain/entities/workout-category.entity';
+import { WorkoutCategory } from '../../../domain/entities/workout-category.entity';
 
 export interface WorkoutCategoryRepositoryPort {
   findAll(): Promise<WorkoutCategory[]>;

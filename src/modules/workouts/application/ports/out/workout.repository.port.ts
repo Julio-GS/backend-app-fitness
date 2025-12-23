@@ -1,4 +1,4 @@
-import { Workout } from '../../domain/entities/workout.entity';
+import { Workout } from '../../../domain/entities/workout.entity';
 
 export interface WorkoutRepositoryPort {
   findAll(userId: string, isPreset?: boolean): Promise<Workout[]>;

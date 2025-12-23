@@ -19,10 +19,15 @@ import { DELETE_WORKOUT_USE_CASE } from './application/ports/in/delete-workout.u
 import { START_WORKOUT_SESSION_USE_CASE } from './application/ports/in/start-workout-session.use-case';
 import { SAVE_EXERCISE_SET_USE_CASE } from './application/ports/in/save-exercise-set.use-case';
 import { FINISH_WORKOUT_SESSION_USE_CASE } from './application/ports/in/finish-workout-session.use-case';
-import { GET_WORKOUT_SESSIONS_USE_CASE } from './application/ports/in/get-workout-sessions.use-case';
+import {
+  GET_WORKOUT_SESSIONS_BY_WORKOUT_ID_USE_CASE,
+  GET_WORKOUT_SESSIONS_USE_CASE,
+} from './application/ports/in/get-workout-sessions.use-case';
 import { GET_WORKOUT_SESSION_BY_ID_USE_CASE } from './application/ports/in/get-workout-session-by-id.use-case';
 import { WORKOUT_REPOSITORY_PORT } from './application/ports/out/workout.repository.port';
 import { WORKOUT_CATEGORY_REPOSITORY_PORT } from './application/ports/out/workout-category.repository.port';
+import { UPDATE_WORKOUT_USE_CASE } from './application/ports/in/update-workout.use-case';
+import { DELETE_EXERCISE_SET_USE_CASE } from './application/ports/in/delete-exercise-set.use-case';
 
 @Module({
   imports: [
@@ -57,6 +62,10 @@ import { WORKOUT_CATEGORY_REPOSITORY_PORT } from './application/ports/out/workou
       provide: DELETE_WORKOUT_USE_CASE,
       useExisting: WorkoutService,
     },
+    {
+      provide: UPDATE_WORKOUT_USE_CASE,
+      useExisting: WorkoutService,
+    },
     // Workout Session Use Cases
     {
       provide: START_WORKOUT_SESSION_USE_CASE,
@@ -76,6 +85,14 @@ import { WORKOUT_CATEGORY_REPOSITORY_PORT } from './application/ports/out/workou
     },
     {
       provide: GET_WORKOUT_SESSION_BY_ID_USE_CASE,
+      useExisting: WorkoutSessionService,
+    },
+    {
+      provide: GET_WORKOUT_SESSIONS_BY_WORKOUT_ID_USE_CASE,
+      useExisting: WorkoutSessionService,
+    },
+    {
+      provide: DELETE_EXERCISE_SET_USE_CASE,
       useExisting: WorkoutSessionService,
     },
     // Repositories

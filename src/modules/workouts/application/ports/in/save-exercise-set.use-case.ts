@@ -3,9 +3,8 @@ import { ExerciseSet } from '../../../domain/entities/exercise-set.entity';
 export interface SaveExerciseSetDto {
   exerciseId: string;
   setNumber: number;
-  weight: number;
-  reps: number;
-  notes?: string;
+  weightKg?: number;
+  reps?: number;
 }
 
 export interface SaveExerciseSetUseCase {

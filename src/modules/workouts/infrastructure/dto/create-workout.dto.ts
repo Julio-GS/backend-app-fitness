@@ -1,23 +1,28 @@
 import { IsString, IsNotEmpty, IsArray, ValidateNested, IsOptional, IsNumber, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
-class WorkoutExerciseDto {
+export class CreateWorkoutExerciseDto {
   @IsString()
   @IsNotEmpty()
   exerciseId: string;
 
   @IsNumber()
-  @Min(1)
-  sets: number;
+  @IsOptional()
+  defaultSets?: number;
 
   @IsNumber()
-  @Min(1)
-  reps: number;
+  @IsOptional()
+  defaultReps?: number;
 
   @IsNumber()
-  @Min(0)
-  order: number;
+  @IsOptional()
+  orderIndex?: number;
+
+  @IsNumber()
+  @IsOptional()
+  defaultRestTime?: number;
 }
+
 
 export class CreateWorkoutDto {
   @IsString()
@@ -34,6 +39,6 @@ export class CreateWorkoutDto {
 
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => WorkoutExerciseDto)
-  exercises: WorkoutExerciseDto[];
+  @Type(() => CreateWorkoutExerciseDto)
+  exercises: CreateWorkoutExerciseDto[];
 }

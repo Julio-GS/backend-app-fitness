@@ -19,6 +19,9 @@ export class Workout {
   @Column({ type: 'varchar', length: 100 })
   name: string;
 
+  @Column({ type: 'text', nullable: true })
+  description?: string;
+
   @Column('uuid', { name: 'category_id' })
   categoryId: string;
 

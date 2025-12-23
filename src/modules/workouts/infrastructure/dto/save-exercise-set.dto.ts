@@ -10,14 +10,10 @@ export class SaveExerciseSetDto {
   setNumber: number;
 
   @IsNumber()
-  @Min(0)
-  weight: number;
+  @IsOptional()
+  weightKg?: number;
 
   @IsNumber()
-  @Min(1)
-  reps: number;
-
-  @IsString()
   @IsOptional()
-  notes?: string;
+  reps?: number;
 }

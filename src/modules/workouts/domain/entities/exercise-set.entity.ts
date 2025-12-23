@@ -7,7 +7,7 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 import { WorkoutSession } from './workout-session.entity';
-import { Exercise } from '../../../../exercises/domain/entities/exercise.entity';
+import { Exercise } from '../../../exercises/domain/entities/exercise.entity';
 
 @Entity('exercise_sets')
 export class ExerciseSet {

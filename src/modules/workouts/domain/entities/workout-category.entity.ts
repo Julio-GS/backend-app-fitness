@@ -8,6 +8,9 @@ export class WorkoutCategory {
   @Column({ type: 'varchar', length: 50 })
   name: string; // 'pecho', 'espalda', etc.
 
+  @Column({ type: 'text', nullable: true })
+  description?: string;
+
   @Column({ type: 'varchar', length: 50, name: 'name_en' })
   nameEn: string;
 

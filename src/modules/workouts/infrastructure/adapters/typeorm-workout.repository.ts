@@ -18,7 +18,7 @@ export class TypeOrmWorkoutRepository implements WorkoutRepositoryPort {
       .leftJoinAndSelect('workout.exercises', 'exercises')
       .leftJoinAndSelect('exercises.exercise', 'exercise')
       .orderBy('workout.createdAt', 'DESC')
-      .addOrderBy('exercises.order', 'ASC');
+      .addOrderBy('exercises.orderIndex', 'ASC');
 
     if (isPreset !== undefined) {
       queryBuilder.andWhere('workout.isPreset = :isPreset', { isPreset });
@@ -36,7 +36,7 @@ export class TypeOrmWorkoutRepository implements WorkoutRepositoryPort {
       relations: ['category', 'exercises', 'exercises.exercise'],
       order: {
         exercises: {
-          order: 'ASC',
+          orderIndex: 'ASC',
         },
       },
     });

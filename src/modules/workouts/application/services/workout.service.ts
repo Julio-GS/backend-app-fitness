@@ -1,22 +1,32 @@
-import { Inject, Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { CreateWorkoutUseCase, CREATE_WORKOUT_USE_CASE } from '../ports/in/create-workout.use-case';
-import { GetWorkoutsUseCase, GET_WORKOUTS_USE_CASE } from '../ports/in/get-workouts.use-case';
-import { GetWorkoutByIdUseCase, GET_WORKOUT_BY_ID_USE_CASE } from '../ports/in/get-workout-by-id.use-case';
-import { DeleteWorkoutUseCase, DELETE_WORKOUT_USE_CASE } from '../ports/in/delete-workout.use-case';
-import { WorkoutRepositoryPort, WORKOUT_REPOSITORY_PORT } from '../ports/out/workout.repository.port';
-import { WorkoutCategoryRepositoryPort, WORKOUT_CATEGORY_REPOSITORY_PORT } from '../ports/out/workout-category.repository.port';
-import { CreateWorkoutDto } from '../../infrastructure/dto/create-workout.dto';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
+import type { CreateWorkoutUseCase } from '../ports/in/create-workout.use-case';
+import type { GetWorkoutsUseCase } from '../ports/in/get-workouts.use-case';
+import type { GetWorkoutByIdUseCase } from '../ports/in/get-workout-by-id.use-case';
+import type { DeleteWorkoutUseCase } from '../ports/in/delete-workout.use-case';
+import type { UpdateWorkoutUseCase } from '../ports/in/update-workout.use-case';
+import type { WorkoutRepositoryPort } from '../ports/out/workout.repository.port';
+import { WORKOUT_REPOSITORY_PORT } from '../ports/out/workout.repository.port';
+import type { WorkoutCategoryRepositoryPort } from '../ports/out/workout-category.repository.port';
+import { WORKOUT_CATEGORY_REPOSITORY_PORT } from '../ports/out/workout-category.repository.port';
+import type { CreateWorkoutDto } from '../../infrastructure/dto/create-workout.dto';
 import { Workout } from '../../domain/entities/workout.entity';
 import { WorkoutExercise } from '../../domain/entities/workout-exercise.entity';
+import type { UpdateWorkoutDto } from '../../infrastructure/dto/update-workout.dto';
 
 @Injectable()
-export class WorkoutService 
-  implements 
-    CreateWorkoutUseCase, 
-    GetWorkoutsUseCase, 
+export class WorkoutService
+  implements
+    CreateWorkoutUseCase,
+    GetWorkoutsUseCase,
     GetWorkoutByIdUseCase,
-    DeleteWorkoutUseCase {
-  
+    DeleteWorkoutUseCase,
+    UpdateWorkoutUseCase
+{
   constructor(
     @Inject(WORKOUT_REPOSITORY_PORT)
     private readonly workoutRepository: WorkoutRepositoryPort,
@@ -24,28 +34,30 @@ export class WorkoutService
     private readonly categoryRepository: WorkoutCategoryRepositoryPort,
   ) {}
 
-  async execute(userId: string, dto: CreateWorkoutDto): Promise<Workout> {
-    // Verificar que la categoría existe
+  async createWorkout(
+    userId: string,
+    dto: CreateWorkoutDto,
+  ): Promise<Workout> {
     const category = await this.categoryRepository.findById(dto.categoryId);
     if (!category) {
-      throw new NotFoundException(`Category with id ${dto.categoryId} not found`);
+      throw new NotFoundException(
+        `Category with id ${dto.categoryId} not found`,
+      );
     }
 
-    // Crear la rutina
     const workout = new Workout();
     workout.name = dto.name;
-    workout.description = dto.description;
-    workout.userId = userId;
+    workout.createdBy = userId;
     workout.category = category;
-    workout.isPreset = false; // Las rutinas creadas por usuarios nunca son preset
+    workout.isPreset = false;
 
-    // Crear los ejercicios de la rutina
     workout.exercises = dto.exercises.map((ex, index) => {
       const workoutExercise = new WorkoutExercise();
       workoutExercise.exerciseId = ex.exerciseId;
-      workoutExercise.sets = ex.sets;
-      workoutExercise.reps = ex.reps;
-      workoutExercise.order = ex.order ?? index;
+      workoutExercise.defaultSets = ex.defaultSets;
+      workoutExercise.defaultReps = ex.defaultReps;
+      workoutExercise.orderIndex = ex.orderIndex ?? index;
+      workoutExercise.defaultRestTime = ex.defaultRestTime;
       return workoutExercise;
     });
 
@@ -58,19 +70,19 @@ export class WorkoutService
 
   async getWorkoutById(workoutId: string, userId?: string): Promise<Workout> {
     const workout = await this.workoutRepository.findById(workoutId);
-    
+
     if (!workout) {
       throw new NotFoundException(`Workout with id ${workoutId} not found`);
     }
 
-    // Si es preset, cualquiera puede verlo
     if (workout.isPreset) {
       return workout;
     }
 
-    // Si no es preset, verificar que pertenece al usuario
-    if (workout.userId !== userId) {
-      throw new ForbiddenException('You do not have permission to access this workout');
+    if (workout.createdBy !== userId) {
+      throw new ForbiddenException(
+        'You do not have permission to access this workout',
+      );
     }
 
     return workout;
@@ -78,21 +90,69 @@ export class WorkoutService
 
   async deleteWorkout(workoutId: string, userId: string): Promise<void> {
     const workout = await this.workoutRepository.findById(workoutId);
-    
+
     if (!workout) {
       throw new NotFoundException(`Workout with id ${workoutId} not found`);
     }
 
-    // No se pueden borrar presets
     if (workout.isPreset) {
       throw new ForbiddenException('Cannot delete preset workouts');
     }
 
-    // Verificar que pertenece al usuario
-    if (workout.userId !== userId) {
-      throw new ForbiddenException('You do not have permission to delete this workout');
+    if (workout.createdBy !== userId) {
+      throw new ForbiddenException(
+        'You do not have permission to delete this workout',
+      );
     }
 
     await this.workoutRepository.delete(workoutId);
+  }
+
+  async updateWorkout(
+    workoutId: string,
+    userId: string,
+    dto: UpdateWorkoutDto,
+  ): Promise<Workout> {
+    const workout = await this.workoutRepository.findById(workoutId);
+
+    if (!workout) {
+      throw new NotFoundException(`Workout with id ${workoutId} not found`);
+    }
+
+    if (workout.createdBy !== userId) {
+      throw new ForbiddenException(
+        'You do not have permission to update this workout',
+      );
+    }
+
+    // Update properties
+    workout.name = dto.name ?? workout.name;
+
+    if (dto.categoryId) {
+      const category = await this.categoryRepository.findById(dto.categoryId);
+      if (!category) {
+        throw new NotFoundException(
+          `Category with id ${dto.categoryId} not found`,
+        );
+      }
+      workout.category = category;
+    }
+
+    // Update exercises
+    if (dto.exercises) {
+      // For simplicity, we'll clear and re-add exercises.
+      // A more robust implementation would diff the changes.
+      workout.exercises = dto.exercises.map((ex, index) => {
+        const workoutExercise = new WorkoutExercise();
+        workoutExercise.exerciseId = ex.exerciseId;
+        workoutExercise.defaultSets = ex.defaultSets;
+        workoutExercise.defaultReps = ex.defaultReps;
+        workoutExercise.orderIndex = ex.orderIndex ?? index;
+        workoutExercise.defaultRestTime = ex.defaultRestTime;
+        return workoutExercise;
+      });
+    }
+
+    return this.workoutRepository.save(workout);
   }
 }

@@ -1,23 +1,28 @@
 import { IsString, IsNotEmpty, IsArray, ValidateNested, IsOptional, IsNumber, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
-class UpdateWorkoutExerciseDto {
+export class UpdateWorkoutExerciseDto {
   @IsString()
   @IsNotEmpty()
   exerciseId: string;
 
   @IsNumber()
-  @Min(1)
-  sets: number;
+  @IsOptional()
+  defaultSets?: number;
 
   @IsNumber()
-  @Min(1)
-  reps: number;
+  @IsOptional()
+  defaultReps?: number;
 
   @IsNumber()
-  @Min(0)
-  order: number;
+  @IsOptional()
+  orderIndex?: number;
+
+  @IsNumber()
+  @IsOptional()
+  defaultRestTime?: number;
 }
+
 
 export class UpdateWorkoutDto {
   @IsString()
