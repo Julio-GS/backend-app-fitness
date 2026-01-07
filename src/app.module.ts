@@ -10,6 +10,9 @@ import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { ExercisesModule } from './modules/exercises/exercises.module';
+import { WorkoutsModule } from './modules/workouts/workouts.module';
+import { TipsModule } from './modules/tips/tips.module';
+import { CardioModule } from './modules/cardio/cardio.module';
 
 @Module({
   imports: [
@@ -21,6 +24,9 @@ import { ExercisesModule } from './modules/exercises/exercises.module';
     AuthModule,
     UsersModule,
     ExercisesModule,
+    WorkoutsModule,
+    TipsModule,
+    CardioModule,
   ],
   controllers: [AppController],
   providers: [
